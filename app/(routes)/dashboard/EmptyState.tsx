@@ -1,5 +1,6 @@
 import Image from 'next/image'
 import React from 'react'
+import CreateInterviewDialog from '../_components/CreateInterviewDialog'
 
 function EmptyState() {
   return (
@@ -9,6 +10,7 @@ function EmptyState() {
             height={130}
         />
         <h2 className='mt-2 text-lg text-gray-500'>You do not have any Interview created</h2>
+        <CreateInterviewDialog/>
     </div>
   )
 }
