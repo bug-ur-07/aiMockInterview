@@ -7,29 +7,16 @@ import { useParams } from "next/navigation";
 import { Id } from "@/convex/_generated/dataModel";
 import { startSpeechToText } from "@/lib/speech";
 import DidAvatar from "./DidAvatar";
+import OpenAI from "openai";
+
+const openai = new OpenAI({
+  apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY!,
+});
 
 interface Q {
   question: string;
   question_number: number;
 }
-
-const speak = (text: string) => {
-  if (!window.speechSynthesis) {
-    console.log("Speech Synthesis not supported");
-    return;
-  }
-
-  const utter = new SpeechSynthesisUtterance(text);
-  utter.lang = "en-US";
-  utter.rate = 1;
-  utter.pitch = 1;
-
-  utter.onerror = (err) => console.log("Speech error:", err);
-
-  window.speechSynthesis.cancel();
-  window.speechSynthesis.speak(utter);
-};
-
 
 export default function StartInterview() {
   const { interviewId } = useParams();
@@ -40,10 +27,13 @@ export default function StartInterview() {
   const [answer, setAnswer] = useState("");
   const [recording, setRecording] = useState(false);
 
+  const [ttsAudioUrl, setTtsAudioUrl] = useState(""); // <-- ❤️ FIXED
+
   useEffect(() => {
     loadQuestions();
   }, []);
 
+  /** Fetch questions */
   const loadQuestions = async () => {
     const data = await convex.query(api.Interview.GetInterviewQuestions, {
       interviewRecordsId: interviewId as Id<"InterviewSessionTable">,
@@ -51,9 +41,30 @@ export default function StartInterview() {
 
     setQuestions(data.interviewQuestions);
 
-    speak(data.interviewQuestions[0].question);
+    // Generate TTS for first question
+    generateAudio(data.interviewQuestions[0].question);
   };
 
+  /** Generate audio for the AI avatar */
+  const generateAudio = async (text: string) => {
+    try {
+      const speech = await openai.audio.speech.create({
+        model: "gpt-4o-mini-tts",
+        voice: "alloy",
+        input: text,
+      });
+
+      const base64 = Buffer.from(await speech.arrayBuffer()).toString("base64");
+
+      const url = `data:audio/mp3;base64,${base64}`;
+
+      setTtsAudioUrl(url); // <-- 🎉 NOW avatar will play audio
+    } catch (error) {
+      console.log("TTS error:", error);
+    }
+  };
+
+  /** Start recording user answer */
   const startVoiceAnswer = async () => {
     try {
       setRecording(true);
@@ -66,18 +77,20 @@ export default function StartInterview() {
     }
   };
 
+  /** Move to next question */
   const nextQuestion = () => {
     const next = currentIndex + 1;
 
     if (next >= questions.length) {
-      alert("Interview done!");
+      alert("Interview finished!");
       return;
     }
 
     setCurrentIndex(next);
     setAnswer("");
 
-    speak(questions[next].question);
+    // Regenerate audio for next question
+    generateAudio(questions[next].question);
   };
 
   if (!questions.length) return <p>Loading...</p>;
@@ -87,7 +100,11 @@ export default function StartInterview() {
       <h1 className="text-xl font-bold">Interview Start</h1>
 
       <p className="mt-4 text-lg">{questions[currentIndex].question}</p>
-      <DidAvatar text={questions[currentIndex].question} />
+
+      <DidAvatar
+        text={questions[currentIndex].question}
+        audioUrl={ttsAudioUrl}
+      />
 
       <textarea
         className="border p-3 w-full mt-3 rounded"

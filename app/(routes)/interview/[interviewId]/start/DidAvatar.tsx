@@ -1,44 +1,36 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 
-export default function DidAvatar({ text }: { text: string }) {
-  const [status, setStatus] = useState("Ready");
+export default function DidAvatar({ audioUrl, text }: { audioUrl: string; text: string }) {
   const [speaking, setSpeaking] = useState(false);
-
   const audioRef = useRef<HTMLAudioElement>(null);
 
-  // --- Update Speech Bubble ---
-  const setBubbleText = (msg: string) => {
-    const el = document.getElementById("speech-text");
-    if (el) el.innerText = msg;
-  };
+  // When parent sends a new audio URL → play automatically
+  useEffect(() => {
+    if (!audioUrl || !audioRef.current) return;
 
-  // --- Play Audio From Your Web Speech API / OpenAI TTS ---
-  const playVoice = async (audioUrl: string) => {
-    setSpeaking(true);
-    setStatus("Speaking...");
+    const audio = audioRef.current;
 
-    if (audioRef.current) {
-      audioRef.current.src = audioUrl;
-      await audioRef.current.play();
+    audio.src = audioUrl;
 
-      audioRef.current.onended = () => {
-        setSpeaking(false);
-        setStatus("Ready");
-      };
-    }
-  };
+    audio.onplay = () => {
+      setSpeaking(true);
+    };
 
-  // Fake demo button (You will replace with your audio URL)
-  const demoSpeak = () => {
-    setBubbleText(text);
-    playVoice("/dummy.mp3"); // replace with your TTS output
-  };
+    audio.onended = () => {
+      setSpeaking(false);
+    };
+
+    audio.onerror = () => {
+      setSpeaking(false);
+    };
+
+    audio.play();
+  }, [audioUrl]);
 
   return (
     <>
-      {/* INTERNAL CSS */}
       <style>{`
         .avatar-container {
           width: 260px;
@@ -68,7 +60,6 @@ export default function DidAvatar({ text }: { text: string }) {
           object-fit: cover;
         }
 
-        /* Mouth animation while speaking */
         .mouth {
           position: absolute;
           bottom: 22px;
@@ -84,7 +75,7 @@ export default function DidAvatar({ text }: { text: string }) {
 
         .speaking .mouth {
           opacity: 1;
-          animation: talk 0.25s infinite alternate;
+          animation: talk 0.2s infinite alternate;
         }
 
         @keyframes talk {
@@ -100,25 +91,6 @@ export default function DidAvatar({ text }: { text: string }) {
           font-size: 14px;
           border: 1px solid #4f46e5;
         }
-
-        .btn {
-          margin-top: 10px;
-          padding: 8px 14px;
-          border-radius: 6px;
-          cursor: pointer;
-          border: none;
-        }
-
-        .btn-primary {
-          background: #4f46e5;
-          color: white;
-        }
-
-        .btn-stop {
-          background: #dc2626;
-          color: white;
-          margin-left: 8px;
-        }
       `}</style>
 
       <div className={`avatar-container ${speaking ? "speaking" : ""}`}>
@@ -132,30 +104,10 @@ export default function DidAvatar({ text }: { text: string }) {
         </div>
 
         <div className="speech-bubble">
-          <span id="speech-text">Hi! I’m your AI interviewer.</span>
+          <span>{text}</span>
         </div>
 
-        <button className="btn btn-primary" onClick={demoSpeak}>
-          🔊 Speak Text
-        </button>
-
-        {speaking && (
-          <button
-            className="btn btn-stop"
-            onClick={() => {
-              setSpeaking(false);
-              if (audioRef.current) audioRef.current.pause();
-            }}
-          >
-            ⏹ Stop
-          </button>
-        )}
-
-        <audio ref={audioRef}></audio>
-
-        <p style={{ marginTop: "8px", fontSize: "12px", opacity: 0.8 }}>
-          Status: {status}
-        </p>
+        <audio ref={audioRef} />
       </div>
     </>
   );
