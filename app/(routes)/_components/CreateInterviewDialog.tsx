@@ -25,8 +25,8 @@ function CreateInterviewDialog() {
   const [file, setFile] = useState<File | null>(null);
   const [loading, setLoading] = useState(false);
   const {userDetail,setUserDetail}=useContext(UserDetailContext)
+  const router=useRouter();
   const saveInterviewQuestion=useMutation(api.Interview.SaveInterviewQuestion)
-  const router = useRouter();
   const onHandleInputChange = (field: string, value: string) => {
     setFormData((prev: any) => ({
       ...prev,
@@ -60,16 +60,17 @@ uploadData.append("jobDescription", formData?.jobDescription || "");
         return;
       }
 
-      const interviewId=await saveInterviewQuestion({
-        question:res.data?.questions,
-        resumeUrl:res?.data.resumeUrl,
-        uid:userDetail?._id,
-        jobTitle:formData?.jobTitle,
-        jobDescription:formData?.jobDescription
-      })
-      console.log(interviewId)
+    const resp = await saveInterviewQuestion({
+  question: res.data?.questions,
+  resumeUrl: res?.data.resumeUrl,
+  uid: userDetail?._id,
+  jobTitle: formData?.jobTitle || null,
+  jobDescription: formData?.jobDescription || null
+});
+
+      console.log(resp)
+      router.push('/interview/'+resp)
       
-      router.push('/interview/'+interviewId);
     } catch (error) {
       console.error("❌ Upload failed:", error);
     } finally {
