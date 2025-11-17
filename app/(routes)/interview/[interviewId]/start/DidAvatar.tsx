@@ -1,60 +1,73 @@
 "use client";
+import { useEffect, useState } from "react";
 
-import { useEffect, useRef, useState } from "react";
-
-export default function DidAvatar({ audioUrl, text }: { audioUrl: string; text: string }) {
+export default function DidAvatar({
+  text,
+  onDone,       // 🔥 new callback prop
+}: {
+  text: string;
+  onDone: () => void;
+}) {
   const [speaking, setSpeaking] = useState(false);
-  const audioRef = useRef<HTMLAudioElement>(null);
 
-  // When parent sends a new audio URL → play automatically
   useEffect(() => {
-    if (!audioUrl || !audioRef.current) return;
+    if (!text) return;
 
-    const audio = audioRef.current;
+    const utter = new SpeechSynthesisUtterance(text);
+    utter.lang = "en-US";
+    utter.rate = 1;
+    utter.pitch = 1;
 
-    audio.src = audioUrl;
+    utter.onstart = () => setSpeaking(true);
 
-    audio.onplay = () => {
-      setSpeaking(true);
-    };
-
-    audio.onended = () => {
+    utter.onend = () => {
       setSpeaking(false);
+      onDone();   // 🔥 notify parent that AI finished speaking
     };
 
-    audio.onerror = () => {
-      setSpeaking(false);
-    };
-
-    audio.play();
-  }, [audioUrl]);
+    window.speechSynthesis.cancel();
+    window.speechSynthesis.speak(utter);
+  }, [text]);
 
   return (
     <>
       <style>{`
-        .avatar-container {
-          width: 260px;
-          margin-top: 15px;
-          padding: 15px;
-          border-radius: 14px;
-          background: #1a1a1a;
-          border: 1px solid #333;
+        .avatar-wrapper {
+          width: 280px;
+          padding: 18px;
+          border-radius: 20px;
+          background: #0d0d0d;
+          border: 1px solid #252525;
+          box-shadow: 0 0 25px rgba(93, 95, 239, 0.35);
           text-align: center;
-          color: white;
+          color: #fff;
+          user-select: none;
         }
 
-        .avatar-frame {
-          width: 160px;
-          height: 160px;
+        .avatar-circle {
+          width: 190px;
+          height: 190px;
           margin: auto;
           border-radius: 50%;
           overflow: hidden;
           position: relative;
-          border: 3px solid #4f46e5;
-          box-shadow: 0 0 15px rgba(99, 102, 241, 0.6);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          border: 5px solid transparent;
+          background: linear-gradient(#000, #000) padding-box,
+                      linear-gradient(135deg, #7c3aed, #4f46e5, #06b6d4) border-box;
+          box-shadow: 0 0 35px rgba(99,102,241,0.5);
+          animation: avatarGlow 5s infinite linear;
         }
 
-        .avatar-img {
+        @keyframes avatarGlow {
+          0% { transform: scale(1); filter: brightness(1); }
+          50% { transform: scale(1.03); filter: brightness(1.25); }
+          100% { transform: scale(1); filter: brightness(1); }
+        }
+
+        .avatar-image {
           width: 100%;
           height: 100%;
           object-fit: cover;
@@ -62,10 +75,8 @@ export default function DidAvatar({ audioUrl, text }: { audioUrl: string; text: 
 
         .mouth {
           position: absolute;
-          bottom: 22px;
-          left: 50%;
-          transform: translateX(-50%);
-          width: 28px;
+          bottom: 18px;
+          width: 40px;
           height: 12px;
           background: #ff4d6d;
           border-radius: 50px;
@@ -75,39 +86,34 @@ export default function DidAvatar({ audioUrl, text }: { audioUrl: string; text: 
 
         .speaking .mouth {
           opacity: 1;
-          animation: talk 0.2s infinite alternate;
+          animation: talk 0.18s infinite alternate;
         }
 
         @keyframes talk {
-          0% { height: 6px; }
-          100% { height: 18px; }
+          from { height: 6px; }
+          to   { height: 20px; }
         }
 
-        .speech-bubble {
-          margin-top: 12px;
-          background: #333;
-          padding: 10px;
-          border-radius: 12px;
-          font-size: 14px;
-          border: 1px solid #4f46e5;
+        .speech-box {
+          margin-top: 15px;
+          padding: 14px;
+          font-size: 15px;
+          background: #161616;
+          border-radius: 14px;
+          border: 1px solid #2d2d2d;
+          color: #e4e4e4;
+          line-height: 1.5;
+          box-shadow: 0 0 10px rgba(33, 33, 33, 0.4);
         }
       `}</style>
 
-      <div className={`avatar-container ${speaking ? "speaking" : ""}`}>
-        <div className="avatar-frame">
-          <img
-            className="avatar-img"
-            src="/avatar-placeholder.jpg"
-            alt="AI Avatar"
-          />
+      <div className="avatar-wrapper">
+        <div className={`avatar-circle ${speaking ? "speaking" : ""}`}>
+          <img src="/AI-talking-avatar.gif" alt="AI Avatar" className="avatar-image" />
           <div className="mouth"></div>
         </div>
 
-        <div className="speech-bubble">
-          <span>{text}</span>
-        </div>
-
-        <audio ref={audioRef} />
+        <div className="speech-box">{text}</div>
       </div>
     </>
   );

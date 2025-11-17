@@ -37,11 +37,19 @@ export const startSpeechToText = (): Promise<string> => {
 
     recognition.start();
 
-    // Auto stop in 2 min
+    // Auto stop in 1 min
+    // setTimeout(() => {
+    //   try {
+    //     recognition.stop();
+    //   } catch {}
+    // }, 1 * 60 * 1000);
+
     setTimeout(() => {
-      try {
-        recognition.stop();
-      } catch {}
-    }, 1 * 60 * 1000);
+  try {
+    recognition.stop();
+  } catch {}
+}, 10 * 1000); // 10 seconds
+
+
   });
 };
