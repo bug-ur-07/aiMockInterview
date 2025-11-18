@@ -8,9 +8,12 @@ import { Id } from "@/convex/_generated/dataModel";
 import { startSpeechToText } from "@/lib/speech";
 import DidAvatar from "./DidAvatar";
 
+// FIXED INTERFACE
 interface Q {
   question: string;
-  question_number: number;
+  answer?: string;
+  commentary?: string;
+  questionNumber: number; // added
 }
 
 const speak = (text: string, onEnd: () => void) => {
@@ -32,8 +35,8 @@ export default function StartInterview() {
   const [answer, setAnswer] = useState("");
   const [recording, setRecording] = useState(false);
 
-  const [aiSpeaking, setAiSpeaking] = useState(true);  // disable buttons
-  const [answered, setAnswered] = useState(false);      // user answered or not
+  const [aiSpeaking, setAiSpeaking] = useState(true);
+  const [answered, setAnswered] = useState(false);
 
   useEffect(() => {
     loadQuestions();
@@ -44,11 +47,18 @@ export default function StartInterview() {
       interviewRecordsId: interviewId as Id<"InterviewSessionTable">,
     });
 
-    setQuestions(data.interviewQuestions);
+    console.log("Loaded questions =", data.interviewQuestions);
 
-    // AI starts speaking
-    speak(data.interviewQuestions[0].question, () => {
-      setAiSpeaking(false); // AI finished → user can speak now
+    // FIX: Add questionNumber manually
+    const normalized = data.interviewQuestions.map((q: any, index: number) => ({
+      ...q,
+      questionNumber: index + 1,
+    }));
+
+    setQuestions(normalized);
+
+    speak(normalized[0].question, () => {
+      setAiSpeaking(false);
     });
   };
 
@@ -61,15 +71,27 @@ export default function StartInterview() {
       setRecording(false);
 
       setAnswer(text);
-      setAnswered(true); // user cannot speak again
+      setAnswered(true);
     } catch (err) {
       console.log("Speech error:", err);
       setRecording(false);
     }
   };
 
-  const nextQuestion = () => {
+  const nextQuestion = async () => {
     if (!answered) return;
+
+    // SAFE NOW: questionNumber ALWAYS EXISTS
+    console.log("Saving answer →", {
+      questionNumber: questions[currentIndex].questionNumber,
+      answer,
+    });
+
+    await convex.mutation(api.Interview.SaveUserAnswer, {
+      interviewId: interviewId as Id<"InterviewSessionTable">,
+      questionNumber: questions[currentIndex].questionNumber,
+      answer: answer,
+    });
 
     const next = currentIndex + 1;
 
@@ -84,7 +106,7 @@ export default function StartInterview() {
     setAiSpeaking(true);
 
     speak(questions[next].question, () => {
-      setAiSpeaking(false); // AI finished speaking
+      setAiSpeaking(false);
     });
   };
 
@@ -95,105 +117,88 @@ export default function StartInterview() {
       <h1 className="text-xl font-bold mb-6">Interview Start</h1>
 
       <div className="flex w-full max-w-5xl justify-between items-start">
-
-        {/* LEFT: AI AVATAR */}
-        {/* <DidAvatar text={questions[currentIndex].question} /> */}
-<div className="rounded-2xl shadow-lg bg-white border border-gray-200 p-6 w-80">
-  <DidAvatar 
-    text={questions[currentIndex].question}
-    onDone={() => setAiSpeaking(false)}
-  />
-</div>
-
-
-
-        {/* RIGHT: USER CARD */}
-        {/* RIGHT: USER CARD */}
         <div className="rounded-2xl shadow-lg bg-white border border-gray-200 p-6 w-80">
-  
+          <DidAvatar
+            text={questions[currentIndex].question}
+            onDone={() => setAiSpeaking(false)}
+          />
+        </div>
 
+        <div className="rounded-2xl shadow-lg bg-white border border-gray-200 p-6 w-80">
+          <div className="w-72 h-72 flex flex-col items-center justify-center bg-[#0d0d0d] border border-[#252525] rounded-2xl text-white shadow-lg p-4">
 
-<div className="w-72 h-72 flex flex-col items-center justify-center bg-[#0d0d0d] border border-[#252525] rounded-2xl text-white shadow-lg p-4">
+            {!answered && !recording && (
+              <p className="text-gray-500">Waiting for your answer...</p>
+            )}
 
-  {/* Waiting text */}
-  {!answered && !recording && (
-    <p className="text-gray-500">Waiting for your answer...</p>
-  )}
+            {recording && (
+              <div className="flex flex-col items-center">
+                <p className="text-gray-300 mb-3">You are speaking...</p>
+                <div className="flex gap-1">
+                  <div className="w-2 h-5 bg-blue-400 animate-bounce"></div>
+                  <div className="w-2 h-8 bg-purple-400 animate-bounce delay-100"></div>
+                  <div className="w-2 h-4 bg-cyan-400 animate-bounce delay-200"></div>
+                  <div className="w-2 h-7 bg-pink-400 animate-bounce delay-300"></div>
+                </div>
+              </div>
+            )}
 
-  {/* Recording animation */}
-  {recording && (
-    <div className="flex flex-col items-center">
-      <p className="text-gray-300 mb-3">You are speaking...</p>
-      <div className="flex gap-1">
-        <div className="w-2 h-5 bg-blue-400 animate-bounce"></div>
-        <div className="w-2 h-8 bg-purple-400 animate-bounce delay-100"></div>
-        <div className="w-2 h-4 bg-cyan-400 animate-bounce delay-200"></div>
-        <div className="w-2 h-7 bg-pink-400 animate-bounce delay-300"></div>
-      </div>
-    </div>
-  )}
-
-  {/* ANSWER TEXTAREA */}
-  {answered && !recording && (
-    <textarea
-      value={answer}
-      readOnly
-      className="
-        w-full 
-        h-full 
-        resize-none 
-        bg-transparent 
-        text-gray-200 
-        border border-[#333] 
-        rounded-lg 
-        p-3 
-        outline-none 
-        overflow-y-auto
-        scrollbar-thin 
-        scrollbar-thumb-gray-600 
-        scrollbar-track-transparent
-      "
-    />
-  )}
-</div>
-</div>
+            {answered && !recording && (
+              <textarea
+                value={answer}
+                readOnly
+                className="
+                  w-full 
+                  h-full 
+                  resize-none 
+                  bg-transparent 
+                  text-gray-200 
+                  border border-[#333] 
+                  rounded-lg 
+                  p-3 
+                  outline-none 
+                  overflow-y-auto
+                "
+              />
+            )}
+          </div>
+        </div>
       </div>
 
-      {/* CENTERED BUTTONS */}
-     <div className="flex gap-5 mt-10 justify-center">
+      <div className="flex gap-5 mt-10 justify-center">
 
-  <button
-    onClick={startVoiceAnswer}
-    disabled={aiSpeaking || answered}
-    className={`px-6 py-3 rounded-xl text-lg font-medium transition
-      ${aiSpeaking || answered
-        ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-        : "bg-green-600 text-white shadow-md hover:bg-green-700"
-      }`}
-  >
-    🎤 Speak Answer
-  </button>
+        <button
+          onClick={startVoiceAnswer}
+          disabled={aiSpeaking || answered}
+          className={`px-6 py-3 rounded-xl text-lg font-medium transition
+            ${aiSpeaking || answered
+              ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+              : "bg-green-600 text-white shadow-md hover:bg-green-700"
+            }`}
+        >
+          🎤 Speak Answer
+        </button>
 
-  <button
-    onClick={nextQuestion}
-    disabled={!answered}
-    className={`px-6 py-3 rounded-xl text-lg font-medium transition
-      ${!answered
-        ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-        : "bg-blue-600 text-white shadow-md hover:bg-blue-700"
-      }`}
-  >
-    Next →
-  </button>
-<button
-  onClick={() => window.location.href = "/dashboard"}
-  className="fixed bottom-8 right-8 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-full shadow-xl flex items-center gap-2"
->
-  ⛔ End Call
-</button>
+        <button
+          onClick={nextQuestion}
+          disabled={!answered}
+          className={`px-6 py-3 rounded-xl text-lg font-medium transition
+            ${!answered
+              ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+              : "bg-blue-600 text-white shadow-md hover:bg-blue-700"
+            }`}
+        >
+          Next →
+        </button>
 
-</div>
+        <button
+          onClick={() => window.location.href = "/dashboard"}
+          className="fixed bottom-8 right-8 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-full shadow-xl flex items-center gap-2"
+        >
+          ⛔ End Call
+        </button>
 
+      </div>
     </div>
   );
 }

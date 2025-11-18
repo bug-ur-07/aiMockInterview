@@ -8,12 +8,19 @@ export default defineSchema({
     email: v.string(),
   }),
   InterviewSessionTable: defineTable({
-    interviewQuestions: v.any(),
-    resumeUrl: v.union(v.string(), v.null()),   // ✅ Allow null
-    userId: v.id("UserTable"),
-    status: v.string(),
-    jobTitle: v.union(v.string(), v.null()),    // ✅ Allow null
-    jobDescription: v.union(v.string(), v.null()), // ✅ Allow null
-    // userAnswers: v.optional(v.array(v.string())) 
-  }),
+  interviewQuestions: v.any(),
+  resumeUrl: v.union(v.string(), v.null()),
+  userId: v.id("UserTable"),
+  status: v.string(),
+  jobTitle: v.union(v.string(), v.null()),
+  jobDescription: v.union(v.string(), v.null()),
+  userAnswers: v.optional(v.array(
+    v.object({
+      questionNumber: v.number(),
+      answer: v.string(),
+      createdAt: v.number(),
+    })
+  )),
+}),
+
 });

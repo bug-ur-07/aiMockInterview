@@ -53,3 +53,32 @@ export const GetUserInterviews = query({
 });
 
 
+
+
+export const SaveUserAnswer = mutation({
+  args: {
+    interviewId: v.id("InterviewSessionTable"),
+    questionNumber: v.number(),
+    answer: v.string(),
+  },
+  handler: async (ctx, args) => {
+    const interview = await ctx.db.get(args.interviewId);
+
+    if (!interview) return null;
+
+    // Add userAnswers array if not present
+    const updatedAnswers = interview.userAnswers ?? [];
+
+    updatedAnswers.push({
+      questionNumber: args.questionNumber,
+      answer: args.answer,
+      createdAt: Date.now(),
+    });
+
+    await ctx.db.patch(args.interviewId, {
+      userAnswers: updatedAnswers,
+    });
+
+    return true;
+  },
+});
