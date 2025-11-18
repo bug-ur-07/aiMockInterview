@@ -36,3 +36,20 @@ export const GetInterviewQuestions=query({
     return result[0]
   }
 })
+
+export const GetUserInterviews = query({
+  args: {
+    uid: v.id("UserTable"),
+  },
+  handler: async (ctx, args) => {
+    const result = await ctx.db
+      .query("InterviewSessionTable")
+      .filter(q => q.eq(q.field("userId"), args.uid))
+      .order("desc")
+      .collect();
+
+    return result;
+  },
+});
+
+

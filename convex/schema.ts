@@ -13,6 +13,7 @@ export default defineSchema({
     userId: v.id("UserTable"),
     status: v.string(),
     jobTitle: v.union(v.string(), v.null()),    // ✅ Allow null
-    jobDescription: v.union(v.string(), v.null()) // ✅ Allow null
+    jobDescription: v.union(v.string(), v.null()), // ✅ Allow null
+    // userAnswers: v.optional(v.array(v.string())) 
   }),
 });
