@@ -7,20 +7,27 @@ export default defineSchema({
     imageUrl: v.string(),
     email: v.string(),
   }),
-  InterviewSessionTable: defineTable({
-  interviewQuestions: v.any(),
-  resumeUrl: v.union(v.string(), v.null()),
-  userId: v.id("UserTable"),
-  status: v.string(),
-  jobTitle: v.union(v.string(), v.null()),
-  jobDescription: v.union(v.string(), v.null()),
-  userAnswers: v.optional(v.array(
-    v.object({
-      questionNumber: v.number(),
-      answer: v.string(),
-      createdAt: v.number(),
-    })
-  )),
-}),
 
+  InterviewSessionTable: defineTable({
+    interviewQuestions: v.any(),
+    resumeUrl: v.union(v.string(), v.null()),
+    userId: v.id("UserTable"),
+    status: v.string(),
+    jobTitle: v.union(v.string(), v.null()),
+    jobDescription: v.union(v.string(), v.null()),
+
+    // Feedback stored from n8n
+    feedback: v.optional(v.any()),
+
+    // User Answers
+    userAnswers: v.optional(
+      v.array(
+        v.object({
+          questionNumber: v.number(),
+          answer: v.string(),
+          createdAt: v.number(),
+        })
+      )
+    ),
+  }),
 });

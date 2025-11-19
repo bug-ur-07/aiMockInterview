@@ -31,6 +31,8 @@ export default function StartInterview() {
 
   const [questions, setQuestions] = useState<Q[]>([]);
   const [currentIndex, setCurrentIndex] = useState(0);
+  const isLastQuestion = currentIndex === questions.length - 1;
+
 
   const [answer, setAnswer] = useState("");
   const [recording, setRecording] = useState(false);
@@ -42,25 +44,35 @@ export default function StartInterview() {
     loadQuestions();
   }, []);
 
-  const loadQuestions = async () => {
-    const data = await convex.query(api.Interview.GetInterviewQuestions, {
-      interviewRecordsId: interviewId as Id<"InterviewSessionTable">,
-    });
+const loadQuestions = async () => {
+  const data = await convex.query(api.Interview.GetInterviewQuestions, {
+    interviewRecordsId: interviewId as Id<"InterviewSessionTable">,
+  });
 
-    console.log("Loaded questions =", data.interviewQuestions);
+  if (!data) {
+    console.error("Interview not found!");
+    return;
+  }
 
-    // FIX: Add questionNumber manually
-    const normalized = data.interviewQuestions.map((q: any, index: number) => ({
-      ...q,
-      questionNumber: index + 1,
-    }));
+  if (!data.interviewQuestions) {
+    console.error("No questions found!");
+    return;
+  }
 
-    setQuestions(normalized);
+  console.log("Loaded questions =", data.interviewQuestions);
 
-    speak(normalized[0].question, () => {
-      setAiSpeaking(false);
-    });
-  };
+  const normalized = data.interviewQuestions.map((q: any, index: number) => ({
+    ...q,
+    questionNumber: index + 1,
+  }));
+
+  setQuestions(normalized);
+
+  speak(normalized[0].question, () => {
+    setAiSpeaking(false);
+  });
+};
+
 
   const startVoiceAnswer = async () => {
     if (answered || aiSpeaking) return;
@@ -111,6 +123,25 @@ export default function StartInterview() {
   };
 
   if (!questions.length) return <p>Loading...</p>;
+
+  const submitInterview = async () => {
+  try {
+    await fetch("http://localhost:5678/webhook/interview-feedback", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        interviewId: interviewId,
+      }),
+    });
+
+    alert("Interview submitted! AI is generating feedback...");
+    window.location.href = "/dashboard";
+  } catch (e) {
+    console.error(e);
+    alert("Error submitting interview.");
+  }
+};
+
 
   return (
     <div className="min-h-screen pt-20 pb-10 bg-white flex flex-col items-center">
@@ -165,40 +196,62 @@ export default function StartInterview() {
         </div>
       </div>
 
-      <div className="flex gap-5 mt-10 justify-center">
+<div className="flex gap-5 mt-10 justify-center">
 
-        <button
-          onClick={startVoiceAnswer}
-          disabled={aiSpeaking || answered}
-          className={`px-6 py-3 rounded-xl text-lg font-medium transition
-            ${aiSpeaking || answered
-              ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-              : "bg-green-600 text-white shadow-md hover:bg-green-700"
-            }`}
-        >
-          🎤 Speak Answer
-        </button>
+  {/* 🎤 Speak Answer — ALWAYS SHOW */}
+  <button
+    onClick={startVoiceAnswer}
+    disabled={aiSpeaking || answered}
+    className={`px-6 py-3 rounded-xl text-lg font-medium transition
+      ${aiSpeaking || answered
+        ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+        : "bg-green-600 text-white shadow-md hover:bg-green-700"
+      }`}
+  >
+    🎤 Speak Answer
+  </button>
 
-        <button
-          onClick={nextQuestion}
-          disabled={!answered}
-          className={`px-6 py-3 rounded-xl text-lg font-medium transition
-            ${!answered
-              ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-              : "bg-blue-600 text-white shadow-md hover:bg-blue-700"
-            }`}
-        >
-          Next →
-        </button>
+  {/* ▶ NEXT button — only if NOT last question */}
+  {!isLastQuestion && (
+    <button
+      onClick={nextQuestion}
+      disabled={!answered}
+      className={`px-6 py-3 rounded-xl text-lg font-medium transition
+        ${!answered
+          ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+          : "bg-blue-600 text-white shadow-md hover:bg-blue-700"
+        }`}
+    >
+      Next →
+    </button>
+  )}
 
-        <button
-          onClick={() => window.location.href = "/dashboard"}
-          className="fixed bottom-8 right-8 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-full shadow-xl flex items-center gap-2"
-        >
-          ⛔ End Call
-        </button>
+  {/* ✅ SUBMIT — only on LAST question */}
+  {isLastQuestion && (
+    <button
+      onClick={submitInterview}
+      disabled={!answered}
+      className={`px-8 py-3 rounded-xl text-lg font-semibold transition
+        ${!answered
+          ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+          : "bg-purple-700 text-white shadow-lg hover:bg-purple-800"
+        }`}
+    >
+      ✅ Submit Interview
+    </button>
+  )}
 
-      </div>
+  {/* ❌ END CALL — always visible */}
+  <button
+    onClick={() => window.location.href = "/dashboard"}
+    className="fixed bottom-8 right-8 bg-red-600 hover:bg-red-700 text-white px-6 py-3 rounded-full shadow-xl flex items-center gap-2"
+  >
+    ⛔ End Call
+  </button>
+
+</div>
+
+
     </div>
   );
 }

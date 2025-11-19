@@ -1,6 +1,9 @@
 import { mutation, query } from "./_generated/server";
 import { v } from "convex/values";
 
+// --------------------------------------------------
+// Save Interview Questions
+// --------------------------------------------------
 export const SaveInterviewQuestion = mutation({
   args: {
     question: v.any(),
@@ -17,44 +20,45 @@ export const SaveInterviewQuestion = mutation({
       status: "draft",
       jobTitle: args.jobTitle ?? null,
       jobDescription: args.jobDescription ?? null,
+      feedback: null,
+      userAnswers: [],
     });
 
     return result;
   },
 });
 
-
-export const GetInterviewQuestions=query({
-  args:{
-    interviewRecordsId:v.id('InterviewSessionTable')
+// --------------------------------------------------
+// Get Interview Questions
+// --------------------------------------------------
+export const GetInterviewQuestions = query({
+  args: {
+    interviewRecordsId: v.id("InterviewSessionTable"),
   },
-  handler:async(ctx,args)=>{
-    const result = await ctx.db.query('InterviewSessionTable')
-    .filter(q=>q.eq(q.field('_id'),args.interviewRecordsId))
-    .collect();
-    
-    return result[0]
-  }
-})
+  handler: async (ctx, args) => {
+    return await ctx.db.get(args.interviewRecordsId);
+  },
+});
 
+// --------------------------------------------------
+// Get All Interviews for a User
+// --------------------------------------------------
 export const GetUserInterviews = query({
   args: {
     uid: v.id("UserTable"),
   },
   handler: async (ctx, args) => {
-    const result = await ctx.db
+    return await ctx.db
       .query("InterviewSessionTable")
-      .filter(q => q.eq(q.field("userId"), args.uid))
+      .filter((q) => q.eq(q.field("userId"), args.uid))
       .order("desc")
       .collect();
-
-    return result;
   },
 });
 
-
-
-
+// --------------------------------------------------
+// Save User Answer
+// --------------------------------------------------
 export const SaveUserAnswer = mutation({
   args: {
     interviewId: v.id("InterviewSessionTable"),
@@ -63,10 +67,8 @@ export const SaveUserAnswer = mutation({
   },
   handler: async (ctx, args) => {
     const interview = await ctx.db.get(args.interviewId);
-
     if (!interview) return null;
 
-    // Add userAnswers array if not present
     const updatedAnswers = interview.userAnswers ?? [];
 
     updatedAnswers.push({
@@ -80,5 +82,36 @@ export const SaveUserAnswer = mutation({
     });
 
     return true;
+  },
+});
+
+// --------------------------------------------------
+// Save AI Feedback (From n8n webhook)
+// --------------------------------------------------
+export const SaveFeedback = mutation({
+  args: {
+    interviewId: v.id("InterviewSessionTable"),
+    feedback: v.any(),
+  },
+  handler: async (ctx, args) => {
+    await ctx.db.patch(args.interviewId, {
+      feedback: args.feedback,
+      status: "completed",
+    });
+
+    return { success: true };
+  },
+});
+
+// --------------------------------------------------
+// Get AI Feedback (Used in FeedbackDialog)
+// --------------------------------------------------
+export const GetFeedback = query({
+  args: {
+    interviewId: v.id("InterviewSessionTable"),
+  },
+  handler: async (ctx, args) => {
+    const interview = await ctx.db.get(args.interviewId);
+    return interview?.feedback ?? null;
   },
 });

@@ -8,6 +8,9 @@ import CreateInterviewDialog from "../_components/CreateInterviewDialog";
 import { useConvex } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import Link from "next/link";
+import { Id } from "@/convex/_generated/dataModel";
+
+import Feedbackdialog from "./Feedbackdialog";
 
 interface InterviewItem {
   _id: string;
@@ -90,27 +93,42 @@ function Dashboard() {
       {!loading && interviewList.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-10">
           {interviewList.map((item) => (
-            <Link
-              key={item._id}
-              href={`/interview/${item._id}`}
-              className="p-6 border rounded-xl bg-gray-50 shadow hover:shadow-md transition"
-            >
-              <h3 className="text-xl font-semibold">
-                {item.jobTitle || "Untitled Job"}
-              </h3>
-              <p className="text-gray-500 mt-1 truncate">
-                {item.jobDescription || "No description"}
-              </p>
+  <div
+    key={item._id}
+    className="p-6 border rounded-xl bg-gray-50 shadow hover:shadow-md transition"
+  >
+    <h3 className="text-xl font-semibold">
+      {item.jobTitle || "Untitled Job"}
+    </h3>
+    <p className="text-gray-500 mt-1 truncate">
+      {item.jobDescription || "No description"}
+    </p>
 
-              <p className="text-sm text-gray-400 mt-2">
-                Questions: {item.interviewQuestions.length}
-              </p>
+    <p className="text-sm text-gray-400 mt-2">
+      Questions: {item.interviewQuestions.length}
+    </p>
 
-              <p className="mt-3 text-blue-600 font-medium underline">
-                Continue Interview →
-              </p>
-            </Link>
-          ))}
+    {/* Buttons Row */}
+    <div className="flex justify-between items-center mt-4">
+
+      {/* Left: Feedback Dialog Button */}
+     <Feedbackdialog
+  interviewId={item._id as Id<"InterviewSessionTable">}
+/>
+
+
+
+      {/* Right: Continue Interview Link */}
+      <Link
+        href={`/interview/${item._id}`}
+        className="text-blue-600 font-medium underline"
+      >
+        Continue Interview →
+      </Link>
+    </div>
+  </div>
+))}
+
         </div>
       )}
     </div>
