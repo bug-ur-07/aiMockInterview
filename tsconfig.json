@@ -20,8 +20,12 @@
     ],
     "paths": {
       "@/*": ["./*"]
+<<<<<<< HEAD
     },
     "allowSyntheticDefaultImports": true
+=======
+    }
+>>>>>>> bf374ef1131acab2ec7b1c825ac99f7d99925ade
   },
   "include": [
     "next-env.d.ts",

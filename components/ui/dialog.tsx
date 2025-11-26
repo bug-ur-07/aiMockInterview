@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 "use client";
 
 import * as React from "react";
@@ -5,29 +6,54 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { XIcon } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+=======
+"use client"
+
+import * as React from "react"
+import * as DialogPrimitive from "@radix-ui/react-dialog"
+import { XIcon } from "lucide-react"
+
+import { cn } from "@/lib/utils"
+>>>>>>> bf374ef1131acab2ec7b1c825ac99f7d99925ade
 
 function Dialog({
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Root>) {
+<<<<<<< HEAD
   return <DialogPrimitive.Root data-slot="dialog" {...props} />;
+=======
+  return <DialogPrimitive.Root data-slot="dialog" {...props} />
+>>>>>>> bf374ef1131acab2ec7b1c825ac99f7d99925ade
 }
 
 function DialogTrigger({
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Trigger>) {
+<<<<<<< HEAD
   return <DialogPrimitive.Trigger data-slot="dialog-trigger" {...props} />;
+=======
+  return <DialogPrimitive.Trigger data-slot="dialog-trigger" {...props} />
+>>>>>>> bf374ef1131acab2ec7b1c825ac99f7d99925ade
 }
 
 function DialogPortal({
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Portal>) {
+<<<<<<< HEAD
   return <DialogPrimitive.Portal data-slot="dialog-portal" {...props} />;
+=======
+  return <DialogPrimitive.Portal data-slot="dialog-portal" {...props} />
+>>>>>>> bf374ef1131acab2ec7b1c825ac99f7d99925ade
 }
 
 function DialogClose({
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Close>) {
+<<<<<<< HEAD
   return <DialogPrimitive.Close data-slot="dialog-close" {...props} />;
+=======
+  return <DialogPrimitive.Close data-slot="dialog-close" {...props} />
+>>>>>>> bf374ef1131acab2ec7b1c825ac99f7d99925ade
 }
 
 function DialogOverlay({
@@ -43,7 +69,11 @@ function DialogOverlay({
       )}
       {...props}
     />
+<<<<<<< HEAD
   );
+=======
+  )
+>>>>>>> bf374ef1131acab2ec7b1c825ac99f7d99925ade
 }
 
 function DialogContent({
@@ -52,7 +82,11 @@ function DialogContent({
   showCloseButton = true,
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Content> & {
+<<<<<<< HEAD
   showCloseButton?: boolean;
+=======
+  showCloseButton?: boolean
+>>>>>>> bf374ef1131acab2ec7b1c825ac99f7d99925ade
 }) {
   return (
     <DialogPortal data-slot="dialog-portal">
@@ -77,7 +111,11 @@ function DialogContent({
         )}
       </DialogPrimitive.Content>
     </DialogPortal>
+<<<<<<< HEAD
   );
+=======
+  )
+>>>>>>> bf374ef1131acab2ec7b1c825ac99f7d99925ade
 }
 
 function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
@@ -87,7 +125,11 @@ function DialogHeader({ className, ...props }: React.ComponentProps<"div">) {
       className={cn("flex flex-col gap-2 text-center sm:text-left", className)}
       {...props}
     />
+<<<<<<< HEAD
   );
+=======
+  )
+>>>>>>> bf374ef1131acab2ec7b1c825ac99f7d99925ade
 }
 
 function DialogFooter({ className, ...props }: React.ComponentProps<"div">) {
@@ -100,7 +142,11 @@ function DialogFooter({ className, ...props }: React.ComponentProps<"div">) {
       )}
       {...props}
     />
+<<<<<<< HEAD
   );
+=======
+  )
+>>>>>>> bf374ef1131acab2ec7b1c825ac99f7d99925ade
 }
 
 function DialogTitle({
@@ -113,7 +159,11 @@ function DialogTitle({
       className={cn("text-lg leading-none font-semibold", className)}
       {...props}
     />
+<<<<<<< HEAD
   );
+=======
+  )
+>>>>>>> bf374ef1131acab2ec7b1c825ac99f7d99925ade
 }
 
 function DialogDescription({
@@ -126,7 +176,11 @@ function DialogDescription({
       className={cn("text-muted-foreground text-sm", className)}
       {...props}
     />
+<<<<<<< HEAD
   );
+=======
+  )
+>>>>>>> bf374ef1131acab2ec7b1c825ac99f7d99925ade
 }
 
 export {
@@ -140,4 +194,8 @@ export {
   DialogPortal,
   DialogTitle,
   DialogTrigger,
+<<<<<<< HEAD
 };
+=======
+}
+>>>>>>> bf374ef1131acab2ec7b1c825ac99f7d99925ade

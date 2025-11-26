@@ -34,3 +34,12 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## FROM AMAN (CHANGES MADE )
+
+I did pdf to text parse part's in two component's one is CreateInterviewDialog.tsx (fetching data from front-end and giving to back-end) and the onother is route.ts fetching data from front-end and giving to PDF.CO and from their we get the url and from that url we recieved the data in text format .
+and also create a key name PDFCO_API_KEY;
+and import import { promises as fs } from "fs";
+import { v4 as uuid } from "uuid"; FOR unique name
+import path from "path";
+import os from "os"; for fix the file location
