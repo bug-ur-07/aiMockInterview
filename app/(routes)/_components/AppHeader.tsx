@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { UserButton } from "@clerk/nextjs";
 import { li } from "motion/react-client";
 import Image from "next/image";
@@ -17,40 +16,15 @@ const MenuOption = [
     path: "/how-it-works",
   },
 ];
-=======
-import { UserButton } from '@clerk/nextjs'
-import { li } from 'motion/react-client'
-import Image from 'next/image'
-import React from 'react'
-const MenuOption=[
-    {
-        name:'Dashboard',
-        path:'/dashboard'
-    },
-    {
-        name:'Upgrade',
-        path:'/upgrade'
-    },
-    {
-        name:'How it works?',
-        path:'/how-it-works'
-    }
-]
->>>>>>> bf374ef1131acab2ec7b1c825ac99f7d99925ade
 function AppHeader() {
   return (
     <nav className="flex w-full items-center justify-between border-t border-b border-neutral-200 px-4 py-4 dark:border-neutral-800">
       <div className="flex items-center gap-2">
-<<<<<<< HEAD
         <Image src={"/logo.svg"} alt="logo" width={40} height={40} />
-=======
-        <Image src= {'/logo.svg'} alt='logo' width={40} height={40}/>
->>>>>>> bf374ef1131acab2ec7b1c825ac99f7d99925ade
         {/* <h1 className="text-base font-bold md:text-2xl">AI Mock Interview</h1> */}
       </div>
 
       <div>
-<<<<<<< HEAD
         <ul className="flex gap-5">
           {MenuOption.map((option, index) => (
             <li
@@ -68,18 +42,3 @@ function AppHeader() {
 }
 
 export default AppHeader;
-=======
-            <ul className='flex gap-5'>
-                {MenuOption.map((option,index)=>(
-                    <li className='text-lg hover:scale-105 transition-all cursor-pointer'>{option.name}</li>
-                ))}
-            </ul>
-      </div>
-      <UserButton/>
-    
-    </nav>
-  )
-}
-
-export default AppHeader
->>>>>>> bf374ef1131acab2ec7b1c825ac99f7d99925ade
