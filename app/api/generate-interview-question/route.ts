@@ -3,8 +3,13 @@ import { promises as fs } from "fs";
 import { v4 as uuid } from "uuid";
 import path from "path";
 import os from "os";
+import OpenAI from "openai";
 
 export async function POST(req: NextRequest) {
+  const CLIENT = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY,
+  });
+
   try {
     // *******************READ FORM DATA *******************
     const formData = await req.formData();
@@ -138,10 +143,29 @@ export async function POST(req: NextRequest) {
 
     console.log("Extracted Text: *********FINAL OUTPUT", extractedText);
 
+    const GENERATED_QUESTION = await CLIENT.chat.completions.create({
+      model: "gpt-4.1-mini",
+      messages: [
+        {
+          role: "system",
+          content: "You generate interview questions for candidates.",
+        },
+        {
+          role: "user",
+          content: `Here is my resume ${extractedText}  Generate:- 4 basic questions - 4 intermediate questions - 2 hard questions and return in singel json boject format like this[ { "question": "..." }]`,
+        },
+      ],
+    });
+
+    const GENERATED_QUESTION_RESULT =
+      GENERATED_QUESTION.choices[0].message?.content;
+    console.log("Generated Interview Questions: ", GENERATED_QUESTION_RESULT);
+
     return NextResponse.json({
       success: true,
-      message: "PDF processed successfully",
+      message: "Interview questions generated successfully",
       data: extractedText,
+      questions: GENERATED_QUESTION_RESULT,
     });
   } catch (error) {
     console.log("Error:", error);

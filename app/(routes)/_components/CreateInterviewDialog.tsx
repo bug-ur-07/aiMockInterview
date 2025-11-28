@@ -48,10 +48,18 @@ function CreateInterviewDialog() {
     }
     uploadData.append("jobTitle", formData?.jobTitle || "");
     uploadData.append("jobDescription", formData?.jobDescription || "");
-    console.log(uploadData, "the upload data ####### ");
+
+    uploadData.forEach((value, key) => {
+      // console.log(key, value); //Log each key/value pair
+    });
+    console.log(
+      formData?.jobTitle,
+      formData?.jobDescription,
+      "######################"
+    ); //Log each key/value pair
 
     try {
-      const res = await axios.post(
+      const RESPONSE = await axios.post(
         "api/generate-interview-question",
         uploadData,
         {
@@ -60,24 +68,20 @@ function CreateInterviewDialog() {
           },
         }
       );
+      console.log("✅ Upload success:", RESPONSE.data);
 
-      console.log("✅ Upload success:", res.data);
+      console.log("Interview Questions:", RESPONSE.data.questions);
 
-      // if (res?.data?.status == 429) {
-      //   console.log(res?.data?.result);
-      //   return;
-      // }
+      const resp = await saveInterviewQuestion({
+        question: RESPONSE.data?.questions,
+        resumeUrl: RESPONSE?.data.resumeUrl || "",
+        uid: userDetail?._id || "",
+        jobTitle: formData?.jobTitle || null,
+        jobDescription: formData?.jobDescription || null,
+      });
 
-      // const resp = await saveInterviewQuestion({
-      //   question: res.data?.questions,
-      //   resumeUrl: res?.data.resumeUrl,
-      //   uid: userDetail?._id,
-      //   jobTitle: formData?.jobTitle || null,
-      //   jobDescription: formData?.jobDescription || null,
-      // });
-
-      // console.log(resp);
-      // router.push("/interview" + resp);
+      const INTERVIEW_ID = resp;
+      router.push(`/interview/${INTERVIEW_ID}`);
     } catch (error) {
       console.error("❌ Upload failed:", error);
     } finally {
