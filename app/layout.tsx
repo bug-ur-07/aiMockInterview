@@ -1,10 +1,11 @@
 import type { Metadata } from "next";
 import { Outfit } from "next/font/google";
+// @ts-ignore: side-effect import of global CSS without type declarations
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ConvexClientProvider } from "./ConvexClientProvider";
 
-const outfit = Outfit({subsets: ['latin']})
+const outfit = Outfit({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Create Next App",
@@ -18,20 +19,11 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-
-
-    <html lang="en">
-      <body
-        className={outfit.className}
-      >
-        <ConvexClientProvider>
-        {children}
-        </ConvexClientProvider>
-      </body>
-    </html>
+      <html lang="en">
+        <body className={outfit.className}>
+          <ConvexClientProvider>{children}</ConvexClientProvider>
+        </body>
+      </html>
     </ClerkProvider>
-    
-    
-    
   );
 }
