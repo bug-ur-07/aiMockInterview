@@ -39,9 +39,11 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-<<<<<<< HEAD
 
 # clerk configuration (can include secrets)
 /.clerk/
-=======
->>>>>>> bf374ef1131acab2ec7b1c825ac99f7d99925ade
+
+
+# ignoring the wroong files
+
+app/api/interview
