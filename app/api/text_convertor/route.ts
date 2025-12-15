@@ -8,11 +8,11 @@ export async function POST(req: NextRequest) {
     const audioFile = form.get("audio") as File;
 
     if (!audioFile || audioFile.size < 3000) {
-      return Response.json({ trasncript: "", message: "No speech detected" });
+      return Response.json({ transcript: "", message: "No speech detected" });
     }
 
     console.log(
-      "Received audio file:",
+      "Received audio file:----------------------------",
       audioFile.name,
       audioFile.type,
       audioFile.size
@@ -47,7 +47,8 @@ export async function POST(req: NextRequest) {
 
     const result = await STT_RESPONSE.json();
     const text = result?.results?.channels?.[0]?.alternatives?.[0]?.transcript;
-    return Response.json({ trasncript: text });
+    console.log("Transcription result:", text);
+    return Response.json({ transcript: text });
   } catch (err: any) {
     console.log(err);
     return new Response(err.message, { status: 500 });

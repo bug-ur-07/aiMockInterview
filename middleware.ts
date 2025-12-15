@@ -8,6 +8,8 @@ const isPublicRoute = createRouteMatcher([
   "/api/speech_convertor(.*)", // allow wildcards
   "/api/text_convertor", // allow wildcards
   "/api/text_convertor(.*)", // allow wildcards
+  "/api/bugFix", // allow wildcards
+  "/api/bugFix(.*)", // allow wildcards
 ]);
 
 export default clerkMiddleware(async (auth, req) => {

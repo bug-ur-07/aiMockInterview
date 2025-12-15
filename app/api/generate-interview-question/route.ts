@@ -152,7 +152,7 @@ export async function POST(req: NextRequest) {
         },
         {
           role: "user",
-          content: `Here is my resume ${extractedText}  Generate:- 4 basic questions - 4 intermediate questions - 2 hard questions and return in singel json boject format like this[ { "question": "..." }]`,
+          content: `Here is my resume ${extractedText}. Start with a polite greeting and ask the candidate to introduce themselves, then generate exactly 5 interview questions based on the resume. Return only a single JSON array in this format: [{ "question": "..." }]. Do not include any extra text.`,
         },
       ],
     });

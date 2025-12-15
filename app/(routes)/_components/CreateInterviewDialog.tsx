@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { FilePond } from "react-filepond";
+// import { FilePond } from "react-filepond";
 // import "filepond/dist/filepond.min.css";
 import {
   Dialog,
@@ -123,8 +123,8 @@ function CreateInterviewDialog() {
           <Button
             onClick={onSubmit}
             disabled={
-              loading ||
-              (!file && (!formData?.jobTitle || !formData?.jobDescription))
+              // loading ||
+              !file && (!formData?.jobTitle || !formData?.jobDescription)
             }
           >
             {loading && <Loader2Icon className="animate-spin mr-2" />}
