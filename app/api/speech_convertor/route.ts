@@ -16,7 +16,7 @@ export async function POST(req: NextRequest) {
 
     // ******************* CALLING DEEPGRAM TTS SERVICE *******************
     const TTS_RESPONSE = await fetch(
-      "https://api.deepgram.com/v1/speak?model=aura-2-thalia-en",
+      "https://api.deepgram.com/v1/speak?model=aura-2-aries-en",
       {
         method: "POST",
         headers: {

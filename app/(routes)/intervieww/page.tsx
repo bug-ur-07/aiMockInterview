@@ -2,7 +2,7 @@
 import VideoCall from "../_components/VideoCall";
 import TTSSpeak from "../tts/text_to_speech";
 import SttResponse from "../stt/speech_to_text";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import WaveVisualizer from "../_components/WaveVisualizer";
 import { useSearchParams } from "next/navigation";
 import { useRouter } from "next/navigation";
@@ -19,6 +19,7 @@ export default function page() {
     null
   );
   const [transcript, setTranscript] = useState("");
+  const [transition, setTransition] = useState("");
   const searchParams = useSearchParams();
   const raw = searchParams.get("pageData");
 
@@ -40,6 +41,23 @@ export default function page() {
     onTranscript: (text: string) => {
       console.log("Final Transcript:", text);
       setTranscript(text);
+      var arr;
+      if (text.length > 11) {
+        arr = [
+          "That’s a good answer. Let’s move on to the next question.",
+          "Thanks for explaining that. Now we’ll continue with the next one.",
+          "Nice response. Let’s go ahead and move to the next question.",
+          "Great, thank you for your answer. Let’s proceed to the next one.",
+          "That sounds good. We’ll now move forward to the next question.",
+          "Alright, I got your answer. Let’s continue with the next question.",
+          "Thanks for sharing that. Let’s move on to the next part.",
+          "Good explanation. Now let’s continue with the next question.",
+          "That was helpful. Let’s move ahead to the next one.",
+          "Nice, thanks for answering. Let’s go to the next question.",
+        ];
+        const index = Math.floor(Math.random() * arr.length);
+        setTransition(arr[index]);
+      }
 
       setTimeout(() => {
         setIndex((prev) => prev + 1);
@@ -53,7 +71,7 @@ export default function page() {
   useEffect(() => {
     if (questions.length === 0) return;
     if (index >= questions.length) {
-      router.push("/dashboard");
+      router.push("/");
     }
   }, [index, questions.length, router]);
 
@@ -92,24 +110,49 @@ export default function page() {
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
+          flexDirection: "column",
+          gap: 100,
         }}
       >
         <div>
           <TTSSpeak
-            text={current_question}
+            text={transition || current_question}
             onStart={() => {
               console.log("TTS started");
               stopRecording();
             }}
             onEnd={() => {
               console.log("TTS finished → starting STT");
-              setTimeout(() => {
-                startRecording();
-              }, 1000);
+              if (transition) {
+                setTransition("");
+              } else {
+                setTimeout(() => {
+                  startRecording();
+                }, 800);
+              }
             }}
             onAudioReady={(audio: HTMLAudioElement) => setAudioElement(audio)}
           />
           <WaveVisualizer audio={audioElement} />
+        </div>
+        <div
+          style={{
+            cursor: "pointer",
+            backgroundColor: "red",
+            padding: "10px",
+            borderRadius: "12px",
+          }}
+        >
+          <button
+            style={{
+              cursor: "inherit",
+            }}
+            onClick={() => {
+              router.push("/");
+            }}
+          >
+            End the Interview
+          </button>
         </div>
       </div>
     </main>

@@ -47,3 +47,4 @@ next-env.d.ts
 # ignoring the wroong files
 
 app/api/interview
+

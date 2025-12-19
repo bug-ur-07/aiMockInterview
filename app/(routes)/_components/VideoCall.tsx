@@ -10,7 +10,7 @@ export default function VideoCall() {
     const original_width = window.innerWidth;
     const VISIBILITY = () => {
       if (document.hidden) {
-        console.log("do,not change the tab");
+        alert("do,not change the tab");
       }
     };
 
@@ -19,6 +19,7 @@ export default function VideoCall() {
       const widthPercnetage = window.innerWidth / original_width;
 
       if (heightPercentage < 0.7 || widthPercnetage < 0.7) {
+        // alert("❌ Cheating detected: window minimized by 30%");
         console.log("❌ Cheating detected: window minimized by 30%");
       }
     };

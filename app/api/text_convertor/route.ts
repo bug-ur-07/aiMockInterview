@@ -1,4 +1,3 @@
-import { error } from "console";
 import { NextRequest } from "next/server";
 export const runtime = "nodejs"; // important for FormData support
 

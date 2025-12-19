@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useCallback, useEffect } from "react";
 
 type ttsProps = {
   text: string;
@@ -17,7 +17,6 @@ export default function TTSSpeak({
 }: ttsProps) {
   useEffect(() => {
     if (!text) return;
-
     const speak = async () => {
       const RESPONSE = await fetch("/api/speech_convertor", {
         method: "POST",
@@ -35,10 +34,9 @@ export default function TTSSpeak({
       audio.onplay = () => onStart?.();
       audio.onended = () => onEnd?.();
       audio.play().catch((err) => {
-        console.log(err, "error of audi");
+        console.log(err, "error of audio");
       });
     };
-
     speak();
   }, [text]);
 

@@ -65,7 +65,7 @@ export default function SttResponse({
         silenceSeconds = 0;
       }
 
-      if (silenceSeconds >= 5) {
+      if (silenceSeconds >= 3.4) {
         console.log("Silent for 5 sec → AUTO STOP");
         stopRecording();
         return;
